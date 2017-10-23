@@ -1,0 +1,29 @@
+def save_dianping_review(url, file):
+    page_code = get_page_code_from_chrome(url)
+    if page_code is None:
+        return
+    try:
+        soup = BeautifulSoup(page_code, 'lxml')  # id="plist"
+
+        res = []
+       # print soup
+        soup.find_all('div', attrs={'class': 'J_brief-cont'})
+        comment = soup.find('div', attrs={'class': "main"})
+        comment1 = comment.find('div', attrs={'class': 'comment-mode'})
+        comment2 = comment1.find('div', attrs={'class': 'comment-list'})
+        reviews = comment2.find('ul').find_all('li')
+        f = open(file, 'a')
+        for review in reviews:
+            content = review.find('div', attrs={'class': 'content'})
+            rate = str(content.find('div', attrs={'class': 'user-info'}).find('span').get('class'))[-2]
+            content_txt = content.find('div', attrs={'class': 'comment-txt'})
+            #ccontent_txt_str = content_txt.find('div', attrs={'class': 'J_brief-cont'}).string
+            ccontent_txt_str = content_txt.find('div', attrs={'class': 'J_brief-cont'}).text
+            f.write(rate + "\t" + str(ccontent_txt_str) + "\n")
+        f.close()
+        print("*****get comment from " + url + "*******")
+    except Exception as e:
+        print url
+        print e
+        print e.message
+        return res
